@@ -112,11 +112,12 @@ if __name__ == "__main__":
     call2 = Call(id=2, individual_id=1, variant_id=2, genotype='0/0')
     call3 = Call(id=3, individual_id=7, variant_id=2, genotype='1/1')
     call4 = Call(id=4, individual_id=7, variant_id=3, genotype='0/1')
+    call5 = Call(individual_id=7, variant_id=1, genotype='1/1')
 
-    session.add_all([ind1, ind2, variant1, variant2, variant3, call1, call2, call3, call4])
+    session.add_all([ind1, ind2, variant1, variant2, variant3, call1, call2, call3, call4, call5])
     session.commit()
 
-    print([call.dump() for call in ind1.calls])
+    print([call.dump() for call in ind2.calls])
     print([call.dump() for call in variant2.calls])
 
     ind1variants = [call.variant for call in ind1.calls if call.variant is not None]

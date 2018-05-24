@@ -17,29 +17,57 @@ def get_variants(chrom, start, end):
     return [p.dump() for p in q]
 
 
-def put_variant(pet_id, pet):
-    p = db_session.query(orm.Pet).filter(orm.Pet.id == pet_id).one_or_none()
-    pet['id'] = pet_id
+def put_variant(variant):
+    variant_id = variant.id
+    v = db_session.query(orm.Variant).filter(orm.Variant.id == variant_id).one_or_none()
     if p is not None:
-        logging.info('Updating pet %s..', pet_id)
-        p.update(**pet)
+        logging.info('Updating variant %s..', variant_id)
+        p.update(**variant)
     else:
-        logging.info('Creating pet %s..', pet_id)
-        pet['created'] = datetime.datetime.utcnow()
-        db_session.add(orm.Pet(**pet))
+        logging.info('Creating variant %s..', variant_id)
+        variant['created'] = datetime.datetime.utcnow()
+        db_session.add(orm.Variant(**variant))
     db_session.commit()
     return NoContent, (200 if p is not None else 201)
 
 
-def delete_pet(pet_id):
-    pet = db_session.query(orm.Pet).filter(orm.Pet.id == pet_id).one_or_none()
-    if pet is not None:
-        logging.info('Deleting pet %s..', pet_id)
-        db_session.query(orm.Pet).filter(orm.Pet.id == pet_id).delete()
-        db_session.commit()
-        return NoContent, 204
+def get_individuals():
+    q = db_session.query(orm.Individual)
+    return [p.dump() for p in q]
+
+
+def put_individual(individual):
+    individual_id = individual.id
+    v = db_session.query(orm.Variant).filter(orm.Variant.id == individual_id).one_or_none()
+    if p is not None:
+        logging.info('Updating individual %s..', individual_id)
+        p.update(**individual)
     else:
-        return NoContent, 404
+        logging.info('Creating individual %s..', individual_id)
+        individual['created'] = datetime.datetime.utcnow()
+        db_session.add(orm.Individual(**individual))
+    db_session.commit()
+    return NoContent, (200 if p is not None else 201)
+
+
+def get_individuals():
+    q = db_session.query(orm.Individual)
+    return [p.dump() for p in q]
+
+
+def put_individual(individual):
+    individual_id = individual.id
+    v = db_session.query(orm.Variant).filter(orm.Variant.id == individual_id).one_or_none()
+    if p is not None:
+        logging.info('Updating individual %s..', individual_id)
+        p.update(**individual)
+    else:
+        logging.info('Creating individual %s..', individual_id)
+        individual['created'] = datetime.datetime.utcnow()
+        db_session.add(orm.Individual(**individual))
+    db_session.commit()
+    return NoContent, (200 if p is not None else 201)
+
 
 logging.basicConfig(level=logging.INFO)
 db_session = orm.init_db('sqlite:///:memory:')
