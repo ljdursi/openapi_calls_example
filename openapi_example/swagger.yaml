@@ -175,7 +175,6 @@ definitions:
         description: Creation time
         example: "2015-07-07T15:49:51.230+02:00"
         readOnly: true
-        x-nullable: true
 
   Call:
     type: object
