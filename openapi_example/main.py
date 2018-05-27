@@ -42,7 +42,7 @@ def put_variant(variant):
     """
     Add a new variant
     """
-    vid = variant['id']
+    vid = variant['id'] if 'id' in variant else None
     if vid is not None:
         if db_session.query(orm.Variant).filter(orm.Variant.id == vid).one_or_none():
             logging.info('Attempting to update existing variant %d..', vid)
@@ -59,9 +59,7 @@ def put_individual(individual):
     """
     Add a new individual
     """
-    print(type(individual))
-    print(individual)
-    iid = individual['id']
+    iid = individual['id'] if 'id' in individual else None
     if iid is not None:
         if db_session.query(orm.Individual).filter(orm.Individual.id == iid).one_or_none():
             logging.info('Attempting to update individual %d..', iid)
@@ -78,7 +76,9 @@ def put_call(call):
     """
     Add a new call
     """
-    cid = call['id']
+    print(type(call))
+    print(call)
+    cid = call['id'] if 'id' in call else None
     if cid is not None:
         if db_session.query(orm.Call).filter(orm.Call.id == cid).one_or_none():
             logging.info('Attempting to update call %d..', cid)

@@ -68,6 +68,39 @@ function get_variants {
     curl --url "${url}" -H "${GETJSON}"
 }
 
+function add_call {
+    local individual_id=$1
+    local variant_id=$2
+    local genotype=$3
+    local format=${4:-"None"}
+    local id=${5:-"None"}
+    local baseurl=${6:-${DEFBASEURL}}
+
+    local ENDPOINT="/calls"
+    local url=${baseurl}${ENDPOINT}
+
+    local xmit="\"individual_id\": ${individual_id}, \"variant_id\": ${variant_id}"
+    local xmit="${xmit}, \"genotype\": \"${genotype}\""
+    if [[ "${format}" != "None" ]]
+    then
+        xmit=${xmit}", \"format\": \"${format}\""
+    fi
+    if [[ "${id}" != "None" ]]
+    then
+        xmit=${xmit}", \"id\": ${id}"
+    fi
+
+    curl -X PUT --url "${url}" -H "${SENDJSON}" -H "${GETJSON}" --data "{ ${xmit} }"
+}
+
+function get_calls {
+    local baseurl=${1:-${DEFBASEURL}}
+    local ENDPOINT="/calls"
+    local url=${baseurl}${ENDPOINT}
+
+    curl --url "${url}" -H "${GETJSON}"
+}
+
 function main {
     add_individual "Subject X" 1
     add_individual "Subject Y" 7
@@ -79,6 +112,13 @@ function main {
     add_variant 'chr1' 53247055 'A' 'G' 'rs5714' 3 
 
     get_variants
+
+    add_call 1 1 '0/1'
+    add_call 1 2 '0/0'
+    add_call 7 2 '1/1'
+    add_call 7 3 '0/1'
+
+    get_calls
 }
 
 main

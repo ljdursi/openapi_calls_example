@@ -85,7 +85,7 @@ paths:
       operationId: main.put_call
       summary: Add a call to the database
       parameters:
-        - name: Call
+        - name: call
           in: body
           schema:
             $ref: '#/definitions/Call'
@@ -190,11 +190,11 @@ definitions:
         example: 123
         readOnly: true
       individual_id:
-        type: string
+        type: integer
         description: Unique identifier of individual
         example: 123
       variant_id:
-        type: string
+        type: integer
         description: Unique identifier of variant
         example: 123
       genotype:
