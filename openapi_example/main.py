@@ -48,7 +48,7 @@ def put_variant(variant):
             logging.info('Attempting to update existing variant %d..', vid)
             return NoContent, 405
 
-    logging.info('Creating variant %d..', vid)
+    logging.info('Creating variant...')
     variant['created'] = datetime.datetime.utcnow()
     db_session.add(orm.Variant(**variant))
     db_session.commit()
@@ -65,7 +65,7 @@ def put_individual(individual):
             logging.info('Attempting to update individual %d..', iid)
             return NoContent, 405
 
-    logging.info('Creating individual %d..', iid)
+    logging.info('Creating individual...')
     individual['created'] = datetime.datetime.utcnow()
     db_session.add(orm.Individual(**individual))
     db_session.commit()
@@ -76,27 +76,43 @@ def put_call(call):
     """
     Add a new call
     """
-    print(type(call))
-    print(call)
     cid = call['id'] if 'id' in call else None
     if cid is not None:
         if db_session.query(orm.Call).filter(orm.Call.id == cid).one_or_none():
             logging.info('Attempting to update call %d..', cid)
             return NoContent, 405
 
-    logging.info('Creating call %d..', cid)
+    logging.info('Creating call...')
     call['created'] = datetime.datetime.utcnow()
     db_session.add(orm.Call(**call))
     db_session.commit()
     return NoContent, 201
 
 
-def get_variants_by_individual(ind_id):
-    pass
+def get_variants_by_individual(individual_id):
+    """
+    Return variants that have been called in an individual
+    """
+    ind_id = individual_id
+    ind = db_session.query(orm.Individual).filter(orm.Individual.id == ind_id).one_or_none()
+    if not ind:
+        return NoContent, 404
+
+    variants = [call.variant for call in ind.calls if call.variant is not None]
+    return [orm.dump(v) for v in variants], 200
 
 
-def get_individuals_by_variant(var_id):
-    pass
+def get_individuals_by_variant(variant_id):
+    """
+    Return variants that have been called in an individual
+    """
+    var_id = variant_id
+    var = db_session.query(orm.Variant).filter(orm.Variant.id == var_id).one_or_none()
+    if not var:
+        return NoContent, 404
+
+    individuals = [call.individual for call in var.calls if call.individual is not None]
+    return [orm.dump(i) for i in individuals], 200
 
 
 logging.basicConfig(level=logging.INFO)

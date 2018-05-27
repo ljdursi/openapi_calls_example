@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash
 
 readonly DEFBASEURL="http://localhost:8080"
 readonly SENDJSON="Content-type: application/json"
@@ -101,29 +101,56 @@ function get_calls {
     curl --url "${url}" -H "${GETJSON}"
 }
 
+function get_variants_by_individual {
+    local individual_id=$1
+    local baseurl=${2:-${DEFBASEURL}}
+    local ENDPOINT="/variants/by_individual"
+
+    local url="${baseurl}${ENDPOINT}/${individual_id}"
+
+    curl --url "${url}" -H "${GETJSON}"
+}
+
+function get_individuals_by_variant {
+    local variant_id=$1
+    local baseurl=${2:-${DEFBASEURL}}
+    local ENDPOINT="/individuals/by_variant"
+
+    local url="${baseurl}${ENDPOINT}/${variant_id}"
+
+    curl --url "${url}" -H "${GETJSON}"
+}
+
 function main {
     add_individual "Subject X" 1
     add_individual "Subject Y" 7
 
+    echo "Individuals in db:"
     get_individuals
+    echo ""
 
     add_variant 'chr1' 230710048 'C' 'T' 'rs699' 1
     add_variant 'chr1' 218441563 'A' 'T' 'rs900' 2 
     add_variant 'chr1' 53247055 'A' 'G' 'rs5714' 3 
 
+    echo "Variants in db:"
     get_variants
+    echo ""
 
     add_call 1 1 '0/1'
     add_call 1 2 '0/0'
     add_call 7 2 '1/1'
     add_call 7 3 '0/1'
 
+    echo "Calls in db:"
     get_calls
+    echo ""
+
+    echo "Variants in individual 7:"
+    get_variants_by_individual 7
+
+    echo "Individuas with variant 2:"
+    get_individuals_by_variant 2
 }
 
 main
-
-#    call1 = Call(id=1, individual_id=1, variant_id=1, genotype='0/1')
-#    call2 = Call(id=2, individual_id=1, variant_id=2, genotype='0/0')
-#    call3 = Call(id=3, individual_id=7, variant_id=2, genotype='1/1')
-#    call4 = Call(id=4, individual_id=7, variant_id=3, genotype='0/1')
