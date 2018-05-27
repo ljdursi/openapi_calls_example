@@ -9,7 +9,7 @@ produces:
 paths:
   /variants:
     get:
-      operationId: app.get_variants
+      operationId: main.get_variants
       summary: Get all variants within genomic range
       parameters:
         - name: chromosome
@@ -31,22 +31,22 @@ paths:
             items:
               $ref: '#/definitions/Variant'
     put:
-      operationId: app.put_variant
-      summary: Create or update a variant
+      operationId: main.put_variant
+      summary: Add a variant to the database
       parameters:
         - name: variant
           in: body
           schema:
             $ref: '#/definitions/Variant'
       responses:
-        200:
-          description: Variant updated
         201:
           description: New variant created
+        405:
+          description: Cannot overwrite variant
 
   /individuals:
     get:
-      operationId: app.get_individuals
+      operationId: main.get_individuals
       summary: Get all individuals
       responses:
         200:
@@ -56,23 +56,23 @@ paths:
             items:
               $ref: '#/definitions/Individual'
     put:
-      operationId: app.put_individual
-      summary: Create or update an individual
+      operationId: main.put_individual
+      summary: Add an individual to the database
       parameters:
         - name: individual
           in: body
           schema:
             $ref: '#/definitions/Individual'
       responses:
-        200:
-          description: Individual updated
         201:
           description: New individual created
+        405:
+          description: Cannot overwrite individual
 
 
   /calls:
     get:
-      operationId: app.get_calls
+      operationId: main.get_calls
       summary: Get all calls
       responses:
         200:
@@ -82,23 +82,23 @@ paths:
             items:
               $ref: '#/definitions/Call'
     put:
-      operationId: app.put_call
-      summary: Create or update an call
+      operationId: main.put_call
+      summary: Add a call to the database
       parameters:
         - name: Call
           in: body
           schema:
             $ref: '#/definitions/Call'
       responses:
-        200:
-          description: Call updated
         201:
-          description: New Call created
+          description: New call created
+        405:
+          description: Cannot overwrite call
 
 
   /variants/by_individual/{individual_id}:
     get:
-      operationId: app.get_variants_by_individual
+      operationId: main.get_variants_by_individual
       summary: Get variants called in an individual
       parameters:
         - $ref: '#/parameters/individual_id'
@@ -114,7 +114,7 @@ paths:
 
   /individuals/by_variant/{variant_id}:
     get:
-      operationId: app.get_individuals_by_variant
+      operationId: main.get_individuals_by_variant
       summary: Get individuals with a given variant called
       parameters:
         - $ref: '#/parameters/variant_id'
@@ -175,6 +175,7 @@ definitions:
         description: Creation time
         example: "2015-07-07T15:49:51.230+02:00"
         readOnly: true
+        x-nullable: true
 
   Call:
     type: object
@@ -223,7 +224,7 @@ definitions:
       - alt
     properties:
       id:
-        type: string
+        type: integer
         description: Unique identifier
         example: 123
         readOnly: true
