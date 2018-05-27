@@ -3,6 +3,7 @@
 """
 Front end of Individual/Variant/Call API example
 """
+import os
 import datetime
 import logging
 
@@ -116,7 +117,14 @@ def get_individuals_by_variant(variant_id):
 
 
 logging.basicConfig(level=logging.INFO)
-db_session = orm.init_db('sqlite:///:memory:')
+
+db_filename = "api.db"
+# delete db if already exists
+try:
+    os.remove(db_filename)
+except OSError:
+    pass
+db_session = orm.init_db('sqlite:///'+db_filename)
 app = connexion.FlaskApp(__name__)
 app.add_api('swagger.yaml')
 
@@ -124,6 +132,9 @@ application = app.app
 
 @application.teardown_appcontext
 def shutdown_session(exception=None):
+    """
+    cleanup
+    """
     db_session.remove()
 
 
