@@ -1,0 +1,254 @@
+swagger: '2.0'
+info:
+  title: Variants and Calls API demo
+  version: "0.1"
+consumes:
+  - application/json
+produces:
+  - application/json
+paths:
+  /variants:
+    get:
+      operationId: main.get_variants
+      summary: Get all variants within genomic range
+      parameters:
+        - name: chromosome
+          in: query
+          type: string
+          pattern: "^[a-zA-Z0-9]*$"
+        - name: start
+          in: query
+          type: integer
+          minimum: 1
+        - name: end
+          in: query
+          type: integer
+      responses:
+        200:
+          description: Return variants
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Variant'
+    put:
+      operationId: main.put_variant
+      summary: Add a variant to the database
+      parameters:
+        - name: variant
+          in: body
+          schema:
+            $ref: '#/definitions/Variant'
+      responses:
+        201:
+          description: New variant created
+        405:
+          description: Cannot overwrite variant
+
+  /individuals:
+    get:
+      operationId: main.get_individuals
+      summary: Get all individuals
+      responses:
+        200:
+          description: Return individuals
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Individual'
+    put:
+      operationId: main.put_individual
+      summary: Add an individual to the database
+      parameters:
+        - name: individual
+          in: body
+          schema:
+            $ref: '#/definitions/Individual'
+      responses:
+        201:
+          description: New individual created
+        405:
+          description: Cannot overwrite individual
+
+
+  /calls:
+    get:
+      operationId: main.get_calls
+      summary: Get all calls
+      responses:
+        200:
+          description: Return calls
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Call'
+    put:
+      operationId: main.put_call
+      summary: Add a call to the database
+      parameters:
+        - name: call
+          in: body
+          schema:
+            $ref: '#/definitions/Call'
+      responses:
+        201:
+          description: New call created
+        405:
+          description: Cannot overwrite call
+
+
+  /variants/by_individual/{individual_id}:
+    get:
+      operationId: main.get_variants_by_individual
+      summary: Get variants called in an individual
+      parameters:
+        - $ref: '#/parameters/individual_id'
+      responses:
+        200:
+          description: Return individuals
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Variant'
+        404:
+          description: Individual does not exist
+
+  /individuals/by_variant/{variant_id}:
+    get:
+      operationId: main.get_individuals_by_variant
+      summary: Get individuals with a given variant called
+      parameters:
+        - $ref: '#/parameters/variant_id'
+      responses:
+        200:
+          description: Return individuals
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Individual'
+        404:
+          description: Variant does not exist
+
+
+parameters:
+  variant_id:
+    name: variant_id
+    description: Variant unique identifier
+    in: path
+    type: integer
+    required: true
+
+  individual_id:
+    name: individual_id
+    description: Individual unique identifier
+    in: path
+    type: integer
+    required: true
+
+  call_id:
+    name: call_id
+    description: Call unique identifier
+    in: path
+    type: integer
+    required: true
+
+
+definitions:
+  Individual:
+    type: object
+    required:
+      - description
+    properties:
+      id:
+        type: integer
+        description: Unique identifier
+        example: 123
+        readOnly: true
+      description:
+        type: string
+        description: description of individual
+        example: "Subject 17"
+        minLength: 1
+        maxLength: 100
+      created:
+        type: string
+        format: date-time
+        description: Creation time
+        example: "2015-07-07T15:49:51.230+02:00"
+        readOnly: true
+
+  Call:
+    type: object
+    required:
+      - individual_id
+      - variant_id
+      - genotype
+    properties:
+      id:
+        type: integer
+        description: Unique identifier
+        example: 123
+        readOnly: true
+      individual_id:
+        type: integer
+        description: Unique identifier of individual
+        example: 123
+      variant_id:
+        type: integer
+        description: Unique identifier of variant
+        example: 123
+      genotype:
+        type: string
+        description: Called genotype
+        example: "0/1"
+      format:
+        type: string
+        description: Additional call information
+        example: "GQ:DP:HQ 48:1:51,51"
+        minLength: 0
+        maxLength: 100
+        default: ""
+      created:
+        type: string
+        format: date-time
+        description: Creation time
+        example: "2015-07-07T15:49:51.230+02:00"
+        readOnly: true
+
+  Variant:
+    type: object
+    required:
+      - chromosome
+      - start
+      - ref
+      - alt
+    properties:
+      id:
+        type: integer
+        description: Unique identifier
+        example: 123
+        readOnly: true
+      name:
+        type: string
+        description: variant name if any
+        example: "rs6054257"
+        minLength: 0
+        maxLength: 100
+        default: ""
+      chromosome:
+        type: string
+        description: Chromosome variant occurs on
+        example: "chr1"
+        minLength: 1
+        maxLength: 10
+      start:
+        type: integer
+        description: Beginning location of variant (1-indexed, like VCF)
+        example: 14370
+      ref:
+        type: string
+        description: Reference bases
+        example: "G"
+      alt:
+        type: string
+        description: Alternate (variant) vases
+        example: "A"
