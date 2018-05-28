@@ -72,7 +72,18 @@ func configureFlags(api *operations.VariantsAndCallsAPIDemoAPI) {
 	// api.CommandLineOptionsGroups = []swag.CommandLineOptionsGroup{ ... }
 }
 
+var db *gorm.DB
+
 func configureAPI(api *operations.VariantsAndCallsAPIDemoAPI) http.Handler {
+    db, err := gorm.Open("sqlite3", "test.db")
+    if err != nil {
+      panic("failed to connect database")
+    }
+    // Create the schema
+    db.CreateTable(&ORMIndividual{})
+    db.CreateTable(&ORMVariant{})
+    db.CreateTable(&ORMCall{})
+
 	// configure the api here
 	api.ServeError = errors.ServeError
 
@@ -130,21 +141,12 @@ func configureTLS(tlsConfig *tls.Config) {
 	// Make all necessary changes to the TLS configuration here.
 }
 
-var db gorm.DB
 
 // As soon as server is initialized but not run yet, this function will be called.
 // If you need to modify a config, store server instance to stop it individually later, this is the place.
 // This function can be called multiple times, depending on the number of serving schemes.
 // scheme value will be set accordingly: "http", "https" or "unix"
 func configureServer(s *graceful.Server, scheme, addr string) {
-  db, err := gorm.Open("sqlite3", "test.db")
-  if err != nil {
-    panic("failed to connect database")
-  }
-  // Create the schema
-  db.CreateTable(&ORMIndividual{})
-  db.CreateTable(&ORMVariant{})
-  db.CreateTable(&ORMCall{})
 }
 
 // The middleware configuration is for the handler executors. These do not apply to the swagger.json document.
