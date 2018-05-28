@@ -5,9 +5,12 @@ package restapi
 import (
 	"crypto/tls"
 	"net/http"
+	"fmt"
+	"time"
 
 	errors "github.com/go-openapi/errors"
 	runtime "github.com/go-openapi/runtime"
+	strfmt "github.com/go-openapi/strfmt"
 	middleware "github.com/go-openapi/runtime/middleware"
 	graceful "github.com/tylerb/graceful"
 
@@ -15,10 +18,53 @@ import (
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
 
 	"github.com/ljdursi/openapi_calls_example/go/restapi/operations"
-	"github.com/ljdursi/openapi_calls_example/models"
+	"github.com/ljdursi/openapi_calls_example/go/models"
 )
 
-// This file is safe to edit. Once it exists it will not be overwritten
+type ORMIndividual struct {
+    ID uint `gorm:"primary_key,type:integer"`
+    Description *string `gorm:"type:varchar(100)"`
+    Created time.Time
+}
+
+func (i ORMIndividual) String() string {
+    return fmt.Sprintf("{ID: %d, Description: '%s'}", i.ID, *i.Description)
+}
+
+type ORMVariant struct {
+    ID uint `gorm:"type:integer,primary_key"`
+    Chromosome string `gorm:"type:varchar(10)"`
+    Name *string `gorm:"type:varchar(100)"`
+	Alt string `gorm:"type:varchar(100)"`
+	Ref string `gorm:"type:varchar(100)"`
+    Start uint `gorm:"type:integer"`
+}
+
+type ORMCall struct {
+    ID uint `gorm:"primary_key,type:integer"`
+    Format *string `gorm:"type:varchar(100)"`
+    Genotype string `gorm:"type:varchar(20)"`
+	IndividualID uint
+	VariantID uint
+	Created *time.Time
+}
+
+func individual_Swagger_to_ORM(m models.Individual) *ORMIndividual {
+    o := new(ORMIndividual)
+    o.Description = m.Description
+    o.Created = time.Time(m.Created)
+    o.ID = uint(m.ID)
+    return o
+}
+
+func individual_ORM_to_Swagger(o ORMIndividual) *models.Individual {
+    m := new(models.Individual)
+    m.Description = o.Description
+    m.Created = strfmt.DateTime(o.Created)
+    m.ID = int64(o.ID)
+    return m
+}
+
 
 //go:generate swagger generate server --target .. --name  --spec ../swagger.yaml
 
@@ -44,7 +90,14 @@ func configureAPI(api *operations.VariantsAndCallsAPIDemoAPI) http.Handler {
 		return middleware.NotImplemented("operation .MainGetCalls has not yet been implemented")
 	})
 	api.MainGetIndividualsHandler = operations.MainGetIndividualsHandlerFunc(func(params operations.MainGetIndividualsParams) middleware.Responder {
-		return middleware.NotImplemented("operation .MainGetIndividuals has not yet been implemented")
+	    var ois []ORMIndividual
+	    db.Find(&ois)
+
+        mis := make([]*models.Individual, len(ois))
+        for idx, oi := range(ois) {
+            mis[idx] = individual_ORM_to_Swagger(oi)
+        }
+		return operations.NewMainGetIndividualsOK().WithPayload(mis)
 	})
 	api.MainGetIndividualsByVariantHandler = operations.MainGetIndividualsByVariantHandlerFunc(func(params operations.MainGetIndividualsByVariantParams) middleware.Responder {
 		return middleware.NotImplemented("operation .MainGetIndividualsByVariant has not yet been implemented")
@@ -59,7 +112,9 @@ func configureAPI(api *operations.VariantsAndCallsAPIDemoAPI) http.Handler {
 		return middleware.NotImplemented("operation .MainPutCall has not yet been implemented")
 	})
 	api.MainPutIndividualHandler = operations.MainPutIndividualHandlerFunc(func(params operations.MainPutIndividualParams) middleware.Responder {
-		return middleware.NotImplemented("operation .MainPutIndividual has not yet been implemented")
+        i := individual_Swagger_to_ORM(*params.Individual)
+        db.Create(i)
+        return operations.NewMainPutIndividualCreated()
 	})
 	api.MainPutVariantHandler = operations.MainPutVariantHandlerFunc(func(params operations.MainPutVariantParams) middleware.Responder {
 		return middleware.NotImplemented("operation .MainPutVariant has not yet been implemented")
@@ -75,11 +130,21 @@ func configureTLS(tlsConfig *tls.Config) {
 	// Make all necessary changes to the TLS configuration here.
 }
 
+var db gorm.DB
+
 // As soon as server is initialized but not run yet, this function will be called.
 // If you need to modify a config, store server instance to stop it individually later, this is the place.
 // This function can be called multiple times, depending on the number of serving schemes.
 // scheme value will be set accordingly: "http", "https" or "unix"
 func configureServer(s *graceful.Server, scheme, addr string) {
+  db, err := gorm.Open("sqlite3", "test.db")
+  if err != nil {
+    panic("failed to connect database")
+  }
+  // Create the schema
+  db.CreateTable(&ORMIndividual{})
+  db.CreateTable(&ORMVariant{})
+  db.CreateTable(&ORMCall{})
 }
 
 // The middleware configuration is for the handler executors. These do not apply to the swagger.json document.
