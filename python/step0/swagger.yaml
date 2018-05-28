@@ -1,0 +1,18 @@
+swagger: '2.0'
+info:
+  title: Hello API
+  version: "0.1"
+paths:
+  /greeting:
+    get:
+      operationId: main.say_hello
+      summary: Returns a greeting.
+      responses:
+        200:
+          description: Successful response.
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                description: Message greeting
