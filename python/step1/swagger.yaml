@@ -24,14 +24,14 @@ paths:
           in: query
           type: integer
       responses:
-        200:
+        '200':
           description: Return variants
           schema:
             type: array
             items:
               $ref: '#/definitions/Variant'
-    put:
-      operationId: main.put_variant
+    post:
+      operationId: main.post_variant
       summary: Add a variant to the database
       parameters:
         - name: variant
@@ -39,9 +39,9 @@ paths:
           schema:
             $ref: '#/definitions/Variant'
       responses:
-        201:
+        '201':
           description: New variant created
-        405:
+        '405':
           description: Cannot overwrite variant
 
   /individuals:
@@ -49,14 +49,14 @@ paths:
       operationId: main.get_individuals
       summary: Get all individuals
       responses:
-        200:
+        '200':
           description: Return individuals
           schema:
             type: array
             items:
               $ref: '#/definitions/Individual'
-    put:
-      operationId: main.put_individual
+    post:
+      operationId: main.post_individual
       summary: Add an individual to the database
       parameters:
         - name: individual
@@ -64,9 +64,9 @@ paths:
           schema:
             $ref: '#/definitions/Individual'
       responses:
-        201:
+        '201':
           description: New individual created
-        405:
+        '405':
           description: Cannot overwrite individual
 
 
@@ -75,14 +75,14 @@ paths:
       operationId: main.get_calls
       summary: Get all calls
       responses:
-        200:
+        '200':
           description: Return calls
           schema:
             type: array
             items:
               $ref: '#/definitions/Call'
-    put:
-      operationId: main.put_call
+    post:
+      operationId: main.post_call
       summary: Add a call to the database
       parameters:
         - name: call
@@ -90,9 +90,9 @@ paths:
           schema:
             $ref: '#/definitions/Call'
       responses:
-        201:
+        '201':
           description: New call created
-        405:
+        '405':
           description: Cannot overwrite call
 
 
