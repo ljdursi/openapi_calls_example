@@ -16,3 +16,4 @@ paths:
               message:
                 type: string
                 description: Message greeting
+                example: Greeting, CanDIGgers!
