@@ -16,13 +16,16 @@ paths:
           in: query
           type: string
           pattern: "^[a-zA-Z0-9]*$"
+          x-example: "chr1"
         - name: start
           in: query
           type: integer
           minimum: 1
+          x-example: 1
         - name: end
           in: query
           type: integer
+          x-example: 100000
       responses:
         '200':
           description: Return variants
@@ -129,7 +132,6 @@ definitions:
         type: integer
         description: Unique identifier
         example: 123
-        readOnly: true
       description:
         type: string
         description: description of individual
@@ -141,7 +143,6 @@ definitions:
         format: date-time
         description: Creation time
         example: "2015-07-07T15:49:51.230+02:00"
-        readOnly: true
 
   Call:
     type: object
@@ -154,7 +155,6 @@ definitions:
         type: integer
         description: Unique identifier
         example: 123
-        readOnly: true
       individual_id:
         type: integer
         description: Unique identifier of individual
@@ -179,7 +179,6 @@ definitions:
         format: date-time
         description: Creation time
         example: "2015-07-07T15:49:51.230+02:00"
-        readOnly: true
 
   Variant:
     type: object
@@ -193,7 +192,6 @@ definitions:
         type: integer
         description: Unique identifier
         example: 123
-        readOnly: true
       name:
         type: string
         description: variant name if any
