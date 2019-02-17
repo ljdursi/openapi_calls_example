@@ -3,17 +3,15 @@
 """
 Front end of Individual/Variant/Call API example
 """
-import datetime
 import logging
 import connexion
 from connexion import NoContent
 import yaml
 from bravado_core.spec import Spec
-
-SPEC = 'swagger.yaml'
 #
 # Bravado core can create Python classes from objects in the Swagger spec
 #
+SPEC = '../swagger.yaml'
 SPEC_DICT = yaml.safe_load(open(SPEC, 'r'))
 SWAGGER_SPEC = Spec.from_dict(SPEC_DICT, config={'use_models': True})
 
@@ -24,16 +22,13 @@ Call = SWAGGER_SPEC.definitions['Call']  # pylint:disable=invalid-name
 #
 # Example Individual, Variant, and Calls:
 #
-test_individual = Individual(id=1, description='Patient Zero',
-                             created=datetime.datetime.now())
+test_individual = Individual(id=1, description='Patient Zero')
 
 test_variant = Variant(id=1, chromosome='chr1', start=14370,
-                       ref='G', alt='A', name='rs6054257',
-                       created=datetime.datetime.now())
+                       ref='G', alt='A', name='rs6054257')
 
 test_call = Call(id=1, variant_id=1, individual_id=1,
-                 genotype='0/1', format='GQ:DP:HQ 48:1:51,51',
-                 created=datetime.datetime.now())
+                 genotype='0/1', format='GQ:DP:HQ 48:1:51,51')
 
 #
 # in memory variant, individual 'database'
@@ -41,6 +36,7 @@ test_call = Call(id=1, variant_id=1, individual_id=1,
 #
 _variants = {1: test_variant}
 _individuals = {1: test_individual}
+_calls = {1: test_call}
 
 #
 # implement the endpoints
@@ -88,19 +84,19 @@ def get_calls():
     """
     Return all calls
     """
-    print("get_calls")
     application.logger.info("inside get_calls")
-    return [test_call], 200
+    return [call for call in _calls.values()], 200
 
 
 def get_call(call_id):
     """
     Return specific call
     """
-    # TODO: add get_call logic
-    print("get_call")
     application.logger.info("inside get_call")
-    return test_call, 200
+    if call_id not in _calls:
+        return NoContent, 404
+
+    return _calls[call_id], 200
 
 
 def post_variant(variant):
@@ -137,11 +133,21 @@ def post_call(call):
     """
     Add a new call
     """
-    # TODO: add logic for posting a call
-    # NOTE: call is a relationship between variant and individual;
-    #       to be valid, variant and individual must exist
+    if call['variant_id'] not in _variants:
+        application.logger.warn("Invalid call: %s", str(call))
+        return NoContent, 405
+
+    if call['individual_id'] not in _individuals:
+        application.logger.warn("Invalid call: %s", str(call))
+        return NoContent, 405
+
+    last_id = len(_calls)
+    new_id = last_id + 1
+
+    call['id'] = new_id
     application.logger.info("Got call: %s", str(call))
-    return NoContent, 201, {'Location': "/calls/2"}
+    _calls[new_id] = Call(**call)
+    return NoContent, 201, {'Location': "/calls/"+str(new_id)}
 
 
 logging.basicConfig(level=logging.INFO)
