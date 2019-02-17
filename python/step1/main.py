@@ -3,7 +3,6 @@
 """
 Front end of Individual/Variant/Call API example
 """
-import datetime
 import logging
 import connexion
 from connexion import NoContent
@@ -15,11 +14,11 @@ SPEC = 'swagger.yaml'
 # Bravado core can create Python classes from objects in the Swagger spec
 #
 SPEC_DICT = yaml.safe_load(open(SPEC, 'r'))
-SWAGGER_SPEC = Spec.from_dict(SPEC_DICT, config={'use_models': True})
+API_SPEC = Spec.from_dict(SPEC_DICT, config={'use_models': True})
 
-Individual = SWAGGER_SPEC.definitions['Individual']  # pylint:disable=invalid-name
-Variant = SWAGGER_SPEC.definitions['Variant']  # pylint:disable=invalid-name
-Call = SWAGGER_SPEC.definitions['Call']  # pylint:disable=invalid-name
+Individual = API_SPEC.definitions['Individual']  # pylint:disable=invalid-name
+Variant = API_SPEC.definitions['Variant']  # pylint:disable=invalid-name
+Call = API_SPEC.definitions['Call']  # pylint:disable=invalid-name
 
 #
 # Example Individual, Variant, and Calls:
@@ -38,6 +37,7 @@ test_call = Call(id=1, variant_id=1, individual_id=1,
 #
 _variants = {1: test_variant}
 _individuals = {1: test_individual}
+
 
 #
 # implement the endpoints
@@ -58,7 +58,7 @@ def get_variant(variant_id):
     Return a specific variant
     """
     application.logger.info("inside get_variant")
-    if not variant_id in _variants:
+    if variant_id not in _variants:
         return NoContent, 404
 
     return _variants[variant_id], 200
@@ -76,7 +76,7 @@ def get_individual(individual_id):
     """
     Return a specific indivdiual
     """
-    if not individual_id in _individuals:
+    if individual_id not in _individuals:
         return NoContent, 404
     return _individuals[individual_id], 200
 
@@ -146,6 +146,7 @@ logging.basicConfig(level=logging.INFO)
 app = connexion.FlaskApp(__name__)
 app.add_api(SPEC)
 application = app.app
+
 
 @application.teardown_appcontext
 def shutdown_session(exception=None):  # pylint: disable=unused-argument

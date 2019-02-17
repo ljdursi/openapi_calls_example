@@ -80,7 +80,7 @@ def test_get_invalid_individual():
     Make sure we can't find an individual that doesn't exist
     """
     try:
-        res = client.individuals.get_individual(individual_id=99999)\
+        _ = client.individuals.get_individual(individual_id=99999)\
             .response().result
     except HTTPNotFound:
         return
@@ -94,7 +94,8 @@ def test_insert_individuals():
         - make sure the individual shows up in get_individuals
         - make sure we can get that specific individual by id
     """
-    res = client.individuals.post_individual(individual=new_individual).response()
+    res = client.individuals.post_individual(individual=new_individual)
+    res = res.response()
     http_response = res.incoming_response
     res = res.result
 
@@ -106,9 +107,10 @@ def test_insert_individuals():
             found = True
     assert found, "Posted individual not in list of all individuals"
 
-    res = client.individuals.get_individual(individual_id=newid).response().result
+    res = client.individuals.get_individual(individual_id=newid).response()
+    res = res.result
     assert individuals_equal(res, new_individual), \
-           "Retrieved individual different from posted individual"
+        "Retrieved individual different from posted individual"
 
 
 def test_insert_variants():
