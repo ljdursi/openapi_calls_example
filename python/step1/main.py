@@ -24,16 +24,13 @@ Call = SWAGGER_SPEC.definitions['Call']  # pylint:disable=invalid-name
 #
 # Example Individual, Variant, and Calls:
 #
-test_individual = Individual(id=1, description='Patient Zero',
-                             created=datetime.datetime.now())
+test_individual = Individual(id=1, description='Patient Zero')
 
 test_variant = Variant(id=1, chromosome='chr1', start=14370,
-                       ref='G', alt='A', name='rs6054257',
-                       created=datetime.datetime.now())
+                       ref='G', alt='A', name='rs6054257')
 
 test_call = Call(id=1, variant_id=1, individual_id=1,
-                 genotype='0/1', format='GQ:DP:HQ 48:1:51,51',
-                 created=datetime.datetime.now())
+                 genotype='0/1', format='GQ:DP:HQ 48:1:51,51')
 
 #
 # in memory variant, individual 'database'
